@@ -5,7 +5,7 @@ import os, sys
 from sklearn.feature_extraction.text import TfidfVectorizer
 import math
 
-learn_path = "../OA-STM-Corpus/SimpleText/SimpleText_auto/"
+learn_path = "./data/SimpleText/SimpleText_auto/"
 dirs = os.listdir( learn_path )
 learn_data = []   
 # This would print all the files and directories
@@ -14,7 +14,7 @@ for file in dirs:
         learn_data.append(myfile.read().replace('\n', ''))
 
 
-test_path = "../OA-STM-Corpus/SimpleText/SimpleText_test/S0022314X13001777.txt"
+test_path = "./data/SimpleText/SimpleText_test/S0022314X13001777.txt"
 test_data = [] 
 with open(test_path, encoding="utf8") as myfile:
         test_data.append(myfile.read().replace('\n', ''))
