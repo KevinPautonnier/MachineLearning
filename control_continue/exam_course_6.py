@@ -54,3 +54,4 @@ plt.scatter(x,y)
 plt.plot(lol, y_lol)
 plt.show()
 
+#need to transform date in timestemp
