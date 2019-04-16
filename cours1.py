@@ -1,42 +1,57 @@
+"""
+    Premier exercice de notre cours de machine learning.
+    Le but était de lire un jeu de données, de les trier et les interpreter pour
+    émettre une hypothèse et de la verifier par un graphe
+"""
+
+from ast import literal_eval
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from ast import literal_eval
 
-df = pd.read_csv('./data/LeagueofLegends.csv',sep=',')
+def main():
+    """...
+    """
 
-# get win_team color
-df['win_team'] = np.where(df['bResult']==1, 'blue', 'red')
+    #get league of legend datas by csv with panda
+    df = pd.read_csv('./data/LeagueofLegends.csv', sep=',')
 
-# Create Figure
-fig, ax = plt.subplots(1,1, figsize=(16,14))
-fig.subplots_adjust(top=0.9)
+    # get win_team color
+    df['win_team'] = np.where(df['bResult'] == 1, 'blue', 'red')
 
-#transform string array in real array
-df['golddiff'] = df['golddiff'].apply(literal_eval)
+    # Create Figure
+    fig, ax = plt.subplots(1, 1, figsize=(16, 14))
+    fig.subplots_adjust(top=0.9)
 
-#get gold diff of the win_team in the middle of the game
-golddiff = []
-index = 0
-for data in df['golddiff']:
-    if(df['win_team'][index] == 'red'):
-        golddiff.append(-data[int(len(data)/2)])
-    else:
-        golddiff.append(data[int(len(data)/2)])
-    index += 1
+    #transform string array in real array
+    df['golddiff'] = df['golddiff'].apply(literal_eval)
 
-#make graph
-p2 = plt.subplot2grid((2,4), (0,1), colspan=3)
-x = np.sort(golddiff)
-y = np.arange(1, len(x) + 1) / len(x)
-plt.plot(x,y, marker='.', linestyle='none', color='blue')
+    #get gold diff of the win_team in the middle of the game
+    golddiff = []
+    index = 0
+    for data in df['golddiff']:
+        if(df['win_team'][index] == 'red'):
+            golddiff.append(-data[int(len(data)/2)])
+        else:
+            golddiff.append(data[int(len(data)/2)])
+        index += 1
 
-#display percent in y axis
-yvals = p2.get_yticks()
-p2.set_yticklabels(['{:3.0f}%'.format(y*100) for y in yvals])
+    #make graph
+    p2 = plt.subplot2grid((2, 4), (0, 1), colspan=3)
+    x = np.sort(golddiff)
+    y = np.arange(1, len(x) + 1) / len(x)
+    plt.plot(x, y, marker='.', linestyle='none', color='blue')
 
-#add title
-p2.set_title('Pourcentage de partie gagnée en fonction de la différence d\'argent au milieu de la partie')
+    #display percent in y axis
+    yvals = p2.get_yticks()
+    p2.set_yticklabels(['{:3.0f}%'.format(y*100) for y in yvals])
 
-plt.tight_layout()
-plt.show()
+    #add title
+    p2.set_title('Pourcentage de partie gagnée en fonction de'
+                 'la différence d\'argent au milieu de la partie')
+
+    plt.tight_layout()
+    plt.show()
+
+if __name__ == "__main__":
+    main()

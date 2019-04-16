@@ -1,50 +1,80 @@
+"""
+    Second exercice de notre cours de machine learning.
+    Le but était de coder une fonction de régression linéaire
+    et de l'utiliser sur une fonction de coup pour se rapprocher
+    de notre hypothese
+"""
+
+from functools import reduce
 import numpy as np
 import matplotlib.pyplot as plt
-from functools import reduce
 
-points = [(1,7), (2,3), (3,1)]
-teta0 = next_0 =1
-teta1 = next_1 =1
+#init data
+POINTS = [(1, 7), (2, 3), (3, 1)]
 
-step = 1
+def calculate_teta_0(t_0, t_1):
+    """
+        teta zero function
+    """
+    return reduce(lambda x, y: x+y, [(t_0 + t_1 * elem[0]) - elem[1] for elem in POINTS])
 
-min_cost = 100
+def calculate_teta_1(t_0, t_1):
+    """
+        teta one function
+    """
+    return reduce(lambda x, y: x+y, [((t_0 + t_1 * elem[0]) - elem[1]) * elem[0] for elem in POINTS])
 
-df_t_0 = lambda t_0,T_1: reduce(lambda x,y : x+y, [(t_0 + T_1 * elem[0]) - elem[1] for elem in points])
-df_t_1 = lambda t_0,T_1: reduce(lambda x,y : x+y, [((t_0 + T_1 * elem[0]) - elem[1]) * elem[0] for elem in points])
-df_j_0 = lambda t_0,T_1: reduce(lambda x,y : x+y, [((t_0 + T_1 * elem[0]) - elem[1])**2 for elem in points])
+def calculate_job(t_0, t_1):
+    """
+        job function
+    """
+    return reduce(lambda x, y: x+y, [((t_0 + t_1 * elem[0]) - elem[1])**2 for elem in POINTS])
 
-while step < 2000000 :
-    learning_rate = 1/step
-    teta0 = next_0
-    teta1 = next_1
-    next_0 = teta0 - learning_rate/len(points) * df_t_0(teta0,teta1)
-    next_1 = teta1 - learning_rate/len(points) * df_t_1(teta0,teta1)
-
-    cost = 1/(2*len(points)) * df_j_0(teta0,teta1)
+def main():
+    """
+        Calculate the linear regression for the points and show it on graph
+    """
     
-    if(cost < 0.8):
-        break
-    if(cost < min_cost):
-        min_cost = cost
+    teta_0 = next_0 = 1
+    teta_1 = next_1 = 1
+    step = 1
+    min_cost = 100
 
-    step+=1
+    while step < 2000000:
+        learning_rate = 1/step
+        teta_0 = next_0
+        teta_1 = next_1
+        next_0 = teta_0 - learning_rate/len(POINTS) * calculate_teta_0(teta_0, teta_1)
+        next_1 = teta_1 - learning_rate/len(POINTS) * calculate_teta_1(teta_0, teta_1)
 
-plt.subplot(211)
-x,y = [elem[0] for elem in points], [elem[1] for elem in points]
-plt.scatter(x,y)
+        #calculate the cost for teta0 and teta1 with the job function
+        cost = 1/(2*len(POINTS)) * calculate_job(teta_0, teta_1)
+        
+        if(cost < 0.8):
+            break
+        if(cost < min_cost):
+            min_cost = cost
 
-lol = np.arange(0,3,0.1)
-y_chapeau = [next_0 + next_1 * elem for elem in lol]
-plt.plot(lol, y_chapeau)
+        step += 1
 
-plt.subplot(212)
-y_lol = [0] * 30
+    plt.subplot(211)
+    x, y = [elem[0] for elem in POINTS], [elem[1] for elem in POINTS]
+    plt.scatter(x, y)
 
-x,y =  [elem[0] for elem in points], [ elem[1] - (next_0 + next_1 * elem[0]) for elem in points]
-plt.scatter(x,y)
-plt.plot(lol, y_lol)
-plt.show()
+    lol = np.arange(0, 3, 0.1)
+    y_chapeau = [next_0 + next_1 * elem for elem in lol]
+    plt.plot(lol, y_chapeau)
 
-print(step)
-print(min_cost)
+    plt.subplot(212)
+    y_lol = [0] * 30
+
+    x, y = [elem[0] for elem in POINTS], [elem[1] - (next_0 + next_1 * elem[0]) for elem in POINTS]
+    plt.scatter(x, y)
+    plt.plot(lol, y_lol)
+    plt.show()
+
+    print(step)
+    print(min_cost)
+
+if __name__ == "__main__":
+    main()
