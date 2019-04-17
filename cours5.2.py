@@ -25,17 +25,16 @@ def main():
 
     learn_path = "./data/SimpleText/SimpleText_auto/"
     dirs = os.listdir(learn_path)
-    learn_data = [] 
+    learn_data = []
     # This would print all the files and directories
     for file in dirs:
         with open(learn_path + file, encoding="utf8") as myfile:
             learn_data.append(myfile.read().replace('\n', ''))
 
-
     test_path = "./data/SimpleText/SimpleText_test/S0022314X13001777.txt"
     test_data = []
     with open(test_path, encoding="utf8") as myfile:
-            test_data.append(myfile.read().replace('\n', ''))
+        test_data.append(myfile.read().replace('\n', ''))
 
 
     vectorizer = TfidfVectorizer()
@@ -53,7 +52,7 @@ def main():
         skl_tfidf_comparisons.append(
             (cosine_similarity(doc_0, vectorizer.transform(test_data)), count_0))
 
-    for x in sorted(skl_tfidf_comparisons, reverse = True):
+    for x in sorted(skl_tfidf_comparisons, reverse=True):
         print(x)
 
 if __name__ == "__main__":
