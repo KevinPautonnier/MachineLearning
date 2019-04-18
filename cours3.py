@@ -63,7 +63,7 @@ def o_v_o(x_train, x_test, y_train, y_test):
 
     #calculate the ratio of good prediction
     prct_predict = (correct_predict/len(x_test))*100
-    print(f"Predict ratio : {prct_predict:.2f}")
+    return prct_predict
 
 
 def o_v_r(x_train, x_test, y_train, y_test):
@@ -87,7 +87,7 @@ def o_v_r(x_train, x_test, y_train, y_test):
 
     #calculate the ratio of good prediction
     prct_predict = (correct_predict/len(x_test))*100
-    print(f"Predict ratio : {prct_predict:.2f}")
+    return prct_predict
 
 def main():
     """
@@ -96,8 +96,12 @@ def main():
     x_train, x_test, y_train, y_test = train_test_split(
         DATA, TARGET, test_size=0.33, random_state=42)
     
-    o_v_o(x_train, x_test, y_train, y_test)
-    o_v_r(x_train, x_test, y_train, y_test)
+    prct_predict = o_v_o(x_train, x_test, y_train, y_test)
+    print(f"Predict ratio : {prct_predict:.2f}")
+
+    prct_predict = o_v_r(x_train, x_test, y_train, y_test)
+    print(f"Predict ratio : {prct_predict:.2f}")
+
     
 if __name__ == "__main__":
     main()
