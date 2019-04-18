@@ -12,14 +12,10 @@ DIGITS = datasets.load_digits()
 DATA = DIGITS['data']
 TARGET = DIGITS['target']
 
-def main():
+def random_forest(x_train, x_test, y_train, y_test):
     """
-        ...
+        random forest function
     """
-
-    x_train, x_test, y_train, y_test = train_test_split(
-        DATA, TARGET, test_size=0.33, random_state=42)
-
     clf = RandomForestClassifier(n_estimators=100, max_depth=2,
                                  random_state=0)
     clf.fit(x_train, y_train)
@@ -31,7 +27,18 @@ def main():
             correct_predictions += 1
         number_of_values_tested += 1
 
-    print(f"precision : { (correct_predictions/number_of_values_tested)*100:.2f}")
+    return (correct_predictions/number_of_values_tested)*100
+
+def main():
+    """
+        ...
+    """
+
+    x_train, x_test, y_train, y_test = train_test_split(
+        DATA, TARGET, test_size=0.33, random_state=42)
+
+    prct_predict = random_forest(x_train, x_test, y_train, y_test)
+    print(f"precision : { prct_predict:.2f}")
 
 if __name__ == "__main__":
     main()
