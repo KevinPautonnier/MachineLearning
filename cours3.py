@@ -12,6 +12,7 @@ import operator
 from sklearn import datasets
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
+from stats_functions import *
 
 
 DIGITS = datasets.load_digits()
@@ -34,6 +35,7 @@ def ovo_test(dic, x_test, y_test, nb_classes):
     """
         test one vs one classifier
     """
+    TP = FP = TN = FN = 0
     correct_predict = 0
     for index, value in enumerate(x_test):
         predict = {elem : 0 for elem in nb_classes}
@@ -42,8 +44,11 @@ def ovo_test(dic, x_test, y_test, nb_classes):
         predicted_value = max(predict.items(), key=operator.itemgetter(1))[0]
         if predicted_value == y_test[index]:
             correct_predict += 1
+            TP += 1
+        else:
+            FP += 1
     
-    return correct_predict
+    return correct_predict, TP, FP, TN, FN
 
 def o_v_o(x_train, x_test, y_train, y_test, comb, nb_classes):
     """
@@ -57,13 +62,17 @@ def o_v_o(x_train, x_test, y_train, y_test, comb, nb_classes):
         time_to_train += timeit.timeit(functools.partial(ovo_classifier, elem, x_train, y_train), number=1)
 
     time_to_test = 0
-    correct_predict = ovo_test(dic, x_test, y_test, nb_classes)
+    correct_predict, TP, FP, TN, FN = ovo_test(dic, x_test, y_test, nb_classes)
     time_to_test += timeit.timeit(functools.partial(ovo_test, dic, x_test, y_test, nb_classes), number=1)
 
     #calculate the ratio of good prediction
     prct_predict = (correct_predict/len(x_test))*100
 
-    return prct_predict, time_to_train, time_to_test
+    prec = precision(TP, FP)
+    rec = recall(TP, FN)
+    F1 = F1_score(prec, rec)
+
+    return prct_predict, time_to_train, time_to_test, prec, rec, F1
 
 def ovr_classifier(elem, x_train, y_train):
     """
@@ -81,7 +90,7 @@ def ovr_test(dic, x_test, y_test, nb_classes):
     """
         test one vs rest classifier
     """
-
+    TP = FP = TN = FN = 0
     correct_predict = 0
     for index, value in enumerate(x_test):
         predict = {elem : 0 for elem in nb_classes}
@@ -91,8 +100,11 @@ def ovr_test(dic, x_test, y_test, nb_classes):
         predicted_value = max(predict.items(), key=operator.itemgetter(1))[0]
         if predicted_value == y_test[index]:
             correct_predict += 1
+            TP += 1
+        else:
+            FP += 1
     
-    return correct_predict
+    return correct_predict, TP, FP, TN, FN
 
 def o_v_r(x_train, x_test, y_train, y_test, nb_classes):
     """
@@ -106,13 +118,17 @@ def o_v_r(x_train, x_test, y_train, y_test, nb_classes):
         time_to_train += timeit.timeit(functools.partial(ovr_classifier, elem, x_train, y_train), number=1)
 
     time_to_test = 0
-    correct_predict = ovr_test(dic, x_test, y_test, nb_classes)
+    correct_predict, TP, FP, TN, FN = ovr_test(dic, x_test, y_test, nb_classes)
     time_to_test += timeit.timeit(functools.partial(ovr_test, dic, x_test, y_test, nb_classes), number=1)
 
     #calculate the ratio of good prediction
     prct_predict = (correct_predict/len(x_test))*100
 
-    return prct_predict, time_to_train, time_to_test
+    prec = precision(TP, FP)
+    rec = recall(TP, FN)
+    F1 = F1_score(prec, rec)
+
+    return prct_predict, time_to_train, time_to_test, prec, rec, F1
 
 def main():
     """
@@ -125,11 +141,15 @@ def main():
     #create list of all combination possible with digit from 0 to 9
     comb = list(combinations(set(TARGET), 2))
     
-    prct_predict = o_v_o(x_train, x_test, y_train, y_test, comb, set(TARGET))
-    print(f"Predict ratio : {prct_predict[0]:.2f}% Time to train : {prct_predict[1]:.2f} Time to test : {prct_predict[2]:.2f}")
+    prct_predict, time_to_train, time_to_test, prec, rec, F1 = o_v_o(x_train, x_test, y_train, y_test, comb, set(TARGET)) 
+    print("One versus one")
+    print(f"Predict ratio : {prct_predict:.2f}% Time to train : {time_to_train:.2f} Time to test : {time_to_test:.2f}")
+    print(f"Precision : {prec:.2f}% Recall : {rec:.2f} F1_score : {F1:.2f}")
 
-    prct_predict = o_v_r(x_train, x_test, y_train, y_test, set(TARGET))
-    print(f"Predict ratio : {prct_predict[0]:.2f}% Time to train : {prct_predict[1]:.2f} Time to test : {prct_predict[2]:.2f}")
-    
+    prct_predict, time_to_train, time_to_test, prec, rec, F1 = o_v_r(x_train, x_test, y_train, y_test, set(TARGET))
+    print("One versus rest")
+    print(f"Predict ratio : {prct_predict:.2f}% Time to train : {time_to_train:.2f} Time to test : {time_to_test:.2f}")
+    print(f"Precision : {prec:.2f}% Recall : {rec:.2f} F1_score : {F1:.2f}")
+
 if __name__ == "__main__":
     main()
