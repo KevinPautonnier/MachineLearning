@@ -137,7 +137,6 @@ def main():
     x_train, x_test, y_train, y_test = train_test_split(
         DATA, TARGET, test_size=0.33, random_state=42)
 
-    
     #create list of all combination possible with digit from 0 to 9
     comb = list(combinations(set(TARGET), 2))
     
