@@ -8,6 +8,8 @@
 
 from __future__ import print_function
 
+import timeit
+import functools
 import keras
 from keras.models import Sequential
 from keras.layers import Dense, Dropout
@@ -69,12 +71,18 @@ def MLP_init(x_train, x_test, y_train, y_test):
     #The Sequential model is a linear stack of layers
     model = Sequential()
     
+    time_to_train = 0
     MLP_train(x_train, y_train, x_test, y_test, model)
+    time_to_train += timeit.timeit(functools.partial(MLP_train, x_train, y_train, x_test, y_test, model), number=1)
 
+    time_to_test = 0
     score = MLP_test(x_test, y_test, model)
+    time_to_test += timeit.timeit(functools.partial(MLP_test, x_test, y_test, model), number=1)
     
-    print('Test loss:', score[0])
-    print('Test accuracy:', score[1])
+    test_loss = score[0]
+    test_accuracy = score[1]
+
+    return test_accuracy*100, time_to_train, time_to_test
 
 def main():
         
@@ -86,7 +94,9 @@ def main():
     x_train, x_test, y_train, y_test = train_test_split(
         DATA, TARGET, test_size=0.2)
 
-    MLP_init(x_train, x_test, y_train, y_test)
+    prct_predict, time_to_train, time_to_test = MLP_init(x_train, x_test, y_train, y_test)
+    print("Multilayer Perceptrons")
+    print(f"Predict ratio : {prct_predict:.2f}% Time to train : {time_to_train:.2f} Time to test : {time_to_test:.2f}")
 
 if __name__ == "__main__":
     main()
