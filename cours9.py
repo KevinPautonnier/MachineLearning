@@ -2,6 +2,7 @@
 """
     Neuvième exercice de notre cours de machine learning.
     Le but était de créer un réseau de neurone simple pour reconnaitre des digits manuscrits
+    Cet algorithme est appelé Perceptron
 """
 
 import timeit
@@ -58,53 +59,81 @@ def predict_right_image(image, weight_images):
 
     return predicted_value
 
-weight_images = create_weight_images()
+def Perceptron_train(x_train, y_train):
+    #fit the data
+    weight_images = create_weight_images()
 
-x_train, x_test, y_train, y_test = train_test_split(
-    DATA, TARGET, test_size=0.2)
+    for idx, elem in enumerate(x_train):
+        weight_images = calculate_new_weight(elem, y_train[idx], weight_images)
 
-#fit the data
-for idx, elem in enumerate(x_train):
-    weight_images = calculate_new_weight(elem, y_train[idx], weight_images)
+        images_display = weight_images
+        max_values = max(map(max, weight_images))
+        images_display = [((elem/max_values)*256) for elem in images_display]
 
-    images_display = weight_images
-    max_values = max(map(max, weight_images))
-    images_display = [((elem/max_values)*256) for elem in images_display]
+        vertical_1 = np.vstack((images_display[0].reshape((8, 8)), images_display[5].reshape((8, 8))))
+        vertical_2 = np.vstack((images_display[1].reshape((8, 8)), images_display[6].reshape((8, 8))))
+        vertical_3 = np.vstack((images_display[2].reshape((8, 8)), images_display[7].reshape((8, 8))))
+        vertical_4 = np.vstack((images_display[3].reshape((8, 8)), images_display[8].reshape((8, 8))))
+        vertical_5 = np.vstack((images_display[4].reshape((8, 8)), images_display[9].reshape((8, 8))))
 
-    vertical_1 = np.vstack((images_display[0].reshape((8, 8)), images_display[5].reshape((8, 8))))
-    vertical_2 = np.vstack((images_display[1].reshape((8, 8)), images_display[6].reshape((8, 8))))
-    vertical_3 = np.vstack((images_display[2].reshape((8, 8)), images_display[7].reshape((8, 8))))
-    vertical_4 = np.vstack((images_display[3].reshape((8, 8)), images_display[8].reshape((8, 8))))
-    vertical_5 = np.vstack((images_display[4].reshape((8, 8)), images_display[9].reshape((8, 8))))
+        img = np.hstack((vertical_1, vertical_2, vertical_3,
+                        vertical_4, vertical_5))
 
-    img = np.hstack((vertical_1, vertical_2, vertical_3,
-                    vertical_4, vertical_5))
+        images_display = cv2.resize(np.uint8(img), (960, 384), interpolation = cv2.INTER_AREA)
 
-    images_display = cv2.resize(np.uint8(img), (960, 384), interpolation = cv2.INTER_AREA)
+        cv2.imshow('image', np.uint8(images_display))
+        k = cv2.waitKey(1)
 
-    cv2.imshow('image', np.uint8(images_display))
-    k = cv2.waitKey(1)
+        if k == 27:
+            break
+            cv2.destroyAllWindows()
+        elif k == ord('s'):
+            break
+            cv2.destroyAllWindows()
+        
+    return weight_images
 
+def Perceptron_test(x_test, y_test, weight_images):
+    
+    correct_prediction = 0
+    number_of_tests = 0
+
+    for idx, elem in enumerate(x_test):
+        if predict_right_image(elem, weight_images) == y_test[idx]:
+            correct_prediction += 1
+        number_of_tests += 1
+    
+    return correct_prediction, number_of_tests
+
+
+def Perceptron(x_train, x_test, y_train, y_test):
+
+    time_to_train = 0
+    weight_images = Perceptron_train(x_train, y_train)
+    time_to_train += timeit.timeit(functools.partial(Perceptron_train, x_train, y_train), number=1)
+
+    k = cv2.waitKey(600000000)
     if k == 27:
-        break
         cv2.destroyAllWindows()
     elif k == ord('s'):
-        break
         cv2.destroyAllWindows()
 
-k = cv2.waitKey(600000000)
-if k == 27:
-    cv2.destroyAllWindows()
-elif k == ord('s'):
-    cv2.destroyAllWindows()
+    time_to_test = 0
+    correct_prediction, number_of_tests = Perceptron_test(x_test, y_test, weight_images)
+    time_to_test += timeit.timeit(functools.partial(Perceptron_test, x_train, y_train, weight_images), number=1)
 
-correct_prediction = 0
-number_of_tests = 0
+    prct_predict = correct_prediction/number_of_tests * 100
 
-for idx, elem in enumerate(x_test):
-    if predict_right_image(elem, weight_images) == y_test[idx]:
-        correct_prediction += 1
-    number_of_tests += 1
+    return prct_predict, time_to_train, time_to_test
     
+def main():
+    
+    x_train, x_test, y_train, y_test = train_test_split(
+        DATA, TARGET, test_size=0.2)
+    
+    prct_predict, time_to_train, time_to_test = Perceptron(x_train, x_test, y_train, y_test)
+    print("Perceptron")
+    print(f"Predict ratio : {prct_predict:.2f}% Time to train : {time_to_train:.2f} Time to test : {time_to_test:.2f}")
 
-print(f"Predict percent : {(correct_prediction/number_of_tests) * 100}%")
+if __name__ == "__main__":
+    main()
